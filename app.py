@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-import openai
+from openai import OpenAI
 import os
 from dotenv import load_dotenv
 
@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuração da API OpenAI
-openai.api_key = os.getenv('OPENAI_API_KEY')
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 # Configuração da porta
 port = int(os.getenv('PORT', 8080))
@@ -34,7 +34,7 @@ def generate_itinerary():
         ]
 
         # Chamada para a API OpenAI
-        response = openai.chat.completions.create(
+        response = client.chat.completions.create(
             model="gpt-4",  # ou "gpt-3.5-turbo"
             messages=messages,
             max_tokens=1000,
@@ -55,11 +55,6 @@ def generate_itinerary():
             "itinerary": itinerary_json
         })
 
-    except openai.error.OpenAIError as oe:
-        return jsonify({
-            "success": False,
-            "error": f"Erro na API OpenAI: {str(oe)}"
-        }), 500
     except Exception as e:
         return jsonify({
             "success": False,
