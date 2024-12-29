@@ -6,9 +6,17 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    environment:
+      - FLASK_ENV=production
+      - PORT=8080
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/"]
       interval: 30s
       timeout: 10s
-      retries: 3 
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M 

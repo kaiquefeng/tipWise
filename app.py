@@ -9,8 +9,13 @@ load_dotenv()
 # Configuração da API OpenAI
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
+# Configuração da porta
+port = int(os.getenv('PORT', 8080))
+env = os.getenv('FLASK_ENV', 'production')
+
 # Inicializar Flask
 app = Flask(__name__)
+app.config['ENV'] = env
 
 @app.route('/generate-itinerary', methods=['POST'])
 def generate_itinerary():
@@ -70,4 +75,7 @@ def health_check():
 
 # Rodar o servidor
 if __name__ == '__main__':
-    app.run(debug=True)
+    if env == 'development':
+        app.run(host='0.0.0.0', port=port, debug=True)
+    else:
+        app.run(host='0.0.0.0', port=port, debug=False)
