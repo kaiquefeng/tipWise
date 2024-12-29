@@ -20,9 +20,30 @@ app.config['ENV'] = env
 @app.route('/generate-itinerary', methods=['POST'])
 def generate_itinerary():
     try:
-        # Receber dados do usuário
-        data = request.json
-        destination = data.get("destination", "Desconhecido")
+        # Verificar se há dados JSON na requisição
+        if not request.is_json:
+            return jsonify({
+                "success": False,
+                "error": "Request must be JSON"
+            }), 400
+
+        # Receber dados do usuário com validação
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                "success": False,
+                "error": "Empty request body"
+            }), 400
+
+        # Validar campos obrigatórios
+        destination = data.get("destination")
+        if not destination:
+            return jsonify({
+                "success": False,
+                "error": "Destination is required"
+            }), 400
+
+        # Pegar outros campos com valores padrão
         days = data.get("days", 3)
         budget = data.get("budget", "médio")
         interests = data.get("interests", "turismo geral")
@@ -35,7 +56,7 @@ def generate_itinerary():
 
         # Chamada para a API OpenAI
         response = client.chat.completions.create(
-            model="gpt-4",  # ou "gpt-3.5-turbo"
+            model="gpt-4",
             messages=messages,
             max_tokens=1000,
             temperature=0.7
@@ -45,9 +66,14 @@ def generate_itinerary():
         itinerary_text = response.choices[0].message.content.strip()
 
         try:
-            itinerary_json = eval(itinerary_text)  # Use eval ou json.loads se o texto for um JSON válido
-        except Exception:
-            itinerary_json = {"error": "A saída da OpenAI não estava no formato JSON esperado.", "raw_output": itinerary_text}
+            import json
+            itinerary_json = json.loads(itinerary_text)
+        except json.JSONDecodeError:
+            return jsonify({
+                "success": False,
+                "error": "Failed to parse OpenAI response as JSON",
+                "raw_output": itinerary_text
+            }), 500
 
         return jsonify({
             "success": True,
@@ -56,9 +82,10 @@ def generate_itinerary():
         })
 
     except Exception as e:
+        app.logger.error(f"Error in generate_itinerary: {str(e)}")
         return jsonify({
             "success": False,
-            "error": f"Erro interno: {str(e)}"
+            "error": f"Internal server error: {str(e)}"
         }), 500
 
 @app.route('/')
