@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuração da API OpenAI
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 # Inicializar Flask
 app = Flask(__name__)
