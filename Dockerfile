@@ -41,5 +41,10 @@ EXPOSE 8080
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
+# Criar usuário não-root
+RUN adduser --disabled-password --gecos '' appuser
+RUN chown -R appuser:appuser /app
+USER appuser
+
 # Definir comando para executar o servidor em produção
 CMD ["/start.sh"]

@@ -2,6 +2,11 @@ from flask import Flask, request, jsonify
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
+import logging
+
+# Configurar logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -16,6 +21,18 @@ env = os.getenv('FLASK_ENV', 'production')
 # Inicializar Flask
 app = Flask(__name__)
 app.config['ENV'] = env
+
+# Configurar logging do Flask
+app.logger.handlers = []
+app.logger.addHandler(logging.StreamHandler())
+app.logger.setLevel(logging.DEBUG)
+
+@app.route('/')
+def health_check():
+    return jsonify({
+        "status": "healthy",
+        "message": "Service is running"
+    })
 
 @app.route('/generate-itinerary', methods=['POST'])
 def generate_itinerary():
@@ -82,20 +99,15 @@ def generate_itinerary():
         })
 
     except Exception as e:
-        app.logger.error(f"Error in generate_itinerary: {str(e)}")
+        logger.exception("Error in generate_itinerary")
         return jsonify({
             "success": False,
             "error": f"Internal server error: {str(e)}"
         }), 500
 
-@app.route('/')
-def health_check():
-    return jsonify({
-        "status": "healthy",
-        "message": "Service is running"
-    })
+# Garantir que a aplicação está pronta para o Gunicorn
+application = app
 
-# Rodar o servidor
 if __name__ == '__main__':
     if env == 'development':
         app.run(host='0.0.0.0', port=port, debug=True)

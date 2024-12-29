@@ -3,13 +3,17 @@
 # Número de workers baseado no número de cores CPU
 WORKERS=$((2 * $(nproc) + 1))
 
-# Iniciar o Gunicorn
-exec gunicorn --bind 0.0.0.0:${PORT:-8080} \
+# Iniciar o Gunicorn com configurações mais detalhadas
+exec gunicorn \
+    --bind 0.0.0.0:${PORT:-8080} \
     --workers ${WORKERS} \
-    --worker-class gthread \
+    --worker-class sync \
     --threads 2 \
     --timeout 120 \
     --access-logfile - \
     --error-logfile - \
-    --log-level info \
+    --log-level debug \
+    --capture-output \
+    --enable-stdio-inheritance \
+    --preload \
     app:app 

@@ -9,6 +9,8 @@ services:
     environment:
       - FLASK_ENV=production
       - PORT=8080
+      - PYTHONUNBUFFERED=1
+      - GUNICORN_CMD_ARGS="--capture-output --enable-stdio-inheritance"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/"]
