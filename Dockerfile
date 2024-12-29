@@ -1,20 +1,20 @@
-# Use Python 3.11 slim image as base
-FROM python:3.11-slim
+# Use uma imagem base leve do Python
+FROM python:3.10-slim
 
-# Set working directory
+# Configurar diretório de trabalho dentro do contêiner
 WORKDIR /app
 
-# Copy requirements first to leverage Docker cache
+# Copiar o arquivo de dependências para o contêiner
 COPY requirements.txt .
 
-# Install dependencies
+# Instalar dependências
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
+# Copiar o código do aplicativo para o contêiner
 COPY . .
 
-# Expose port 5000 for Flask
-EXPOSE 5000
+# Expor a porta que o aplicativo usará
+EXPOSE 8000
 
-# Command to run the application
-CMD ["python", "app.py"] 
+# Definir comando para executar o servidor em produção
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app:app"]

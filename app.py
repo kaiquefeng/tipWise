@@ -61,6 +61,13 @@ def generate_itinerary():
             "error": f"Erro interno: {str(e)}"
         }), 500
 
+@app.route('/')
+def health_check():
+    return jsonify({
+        "status": "healthy",
+        "message": "Service is running"
+    })
+
 # Rodar o servidor
 if __name__ == '__main__':
     app.run(debug=True)
