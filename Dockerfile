@@ -13,13 +13,22 @@ ENV PORT=8080
 
 # Instalar dependências do sistema
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc curl \
+    && apt-get install -y --no-install-recommends \
+        gcc \
+        curl \
+        build-essential \
+        python3-dev \
+        libffi-dev \
+        libssl-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Atualizar pip
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # Copiar o arquivo de dependências para o contêiner
 COPY requirements.txt .
 
-# Instalar dependências
+# Instalar dependências Python
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar o código do aplicativo para o contêiner
