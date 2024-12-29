@@ -13,6 +13,7 @@ load_dotenv()
 
 # Configuração da API OpenAI
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+print(client)
 
 # Configuração da porta
 port = int(os.getenv('PORT', 8080))
